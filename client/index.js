@@ -58,8 +58,12 @@ async function handleClickEditButton(bookId) {
     // Ambil data buku dari server berdasarkan id, simpan hasilnya ke variabel currentBook
     // TODO: answer here
 
+    const response = await fetch(`http://localhost:3333/books/${bookId}`, {
+      method: 'GET'
+    })
+    currentBook = await response.json()
     currentPage = 'edit';
-    
+    console.log(currentBook);
     loadPage();
   } catch (error) {
     console.log(error);
@@ -76,20 +80,9 @@ async function handleClickDeleteButton(bookId) {
     //panggil function deleteBook dengan parameter bookId
     // TODO: answer here
 
-    const confirmation = confirm('Apakah anda yakin ingin menghapus buku ini?');
-    if (!confirmation) {
-      // return;
-      console.log('tidak jadi hapus deh!');
-    } else{
-      books.forEach(async (item) => {
-        if(item.id === bookId){
-          await deleteBook(bookId)
-          .then((res) => console.log(res))
-          .catch((error) => console.log(error))
-          console.log('id ditemukan');
-        }
-      })
-    }
+    await deleteBook(bookId)
+    .then((res) => console.log(res))
+    .catch((error) => console.log(error))
 
     loadPage();
   } catch (error) {
@@ -225,19 +218,6 @@ function generateRows(books) {
 
     // TODO: answer here
 
-    // rows = books.forEach((item) => {
-    //   `<tr class="book-item">
-    //   <td class="px-6 py-4 border-b">${item.title}</td>
-    //   <td class="px-6 py-4 border-b">${item.author}</td>
-    //   <td class="px-6 py-4 border-b">${item.year}</td>
-    //   <td class="px-6 py-4 border-b">${item.quantity}</td>
-    //   <td class="px-6 py-4 border-b text-center">
-    //     <button class="inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onclick="handleClickEditButton(BookId)">Edit</button>
-    //     <button class="inline-block bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" onclick="handleClickDeleteButton(BookId)">Hapus</button>  
-    //   </td>
-    // </tr>`
-    // })
-
     books.forEach((item) => {
       rows += `<tr class="book-item">
          <td class="px-6 py-4 border-b">${item.title}</td>
@@ -289,10 +269,6 @@ async function loadPage() {
       .catch((err) => {
           console.log(err);
       });
-
-      console.log(books.length);
-      console.log('books:',books);
-      console.log(books[0]);
 
       const tableBody = document.querySelector('tbody');
       /* 
@@ -364,21 +340,23 @@ async function addBook(book) {
 
 // masih jadi PR
 async function editBook(book) {
+  let idCurrentBook = currentBook.id
+
   try {
     /* 
       ubah buku yang ada di http://localhost:3333/books/:id dengan method PUT
       body yang dikirim adalah book yang dikirimkan sebagai parameter function
     */
     // TODO: answer here
-    // const response = await fetch(`http://localhost:3333/books/${book}`, {
-    //   method: 'PUT',
-    //   headers: {
-    //     'Content-Type': 'application/json'
-    //   },
-    //   body: JSON.stringify(book)
-    // });
-    // const datas = await response.json();
-    // return datas
+    const response = await fetch(`http://localhost:3333/books/${idCurrentBook}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(book)
+    });
+    console.log(response);
+    return response
   } catch (error) {
     console.log(error);
     console.log('Terjadi kesalahan saat mengubah buku');
@@ -405,5 +383,4 @@ async function deleteBook(bookId) {
     console.log('Terjadi kesalahan saat menghapus buku');
   }
 }
-
 loadPage();
